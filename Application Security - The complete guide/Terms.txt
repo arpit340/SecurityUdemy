@@ -1,0 +1,3 @@
+CWE - Common weekness enumeration
+
+NVD - National vulnerabilty dB

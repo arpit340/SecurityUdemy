@@ -1,0 +1,40 @@
+o Certified Application Security Engineer (CASE)
+o Certified Application Security Specialist (CASS)
+o GIAC Certified Web Application Defender (GWEB)
+o GIAC Web Application Penetration Tester (GWAPT)
+Having a background or exposure to But Bounty program will be desirable
+Having a CVE ID to your name would be an added advantage
+Experience in working on Web Application Firewall rules
+
+Secure SDLC, Threat Modeling, Code Review, Web Service/API security testing.
+
+Look like a important link -
+https://www.appsecengineer.com/e-books/e-book-a-beginners-guide-to-careers-in-appsec
+
+
+Project Role :Security Architect
+
+Project Role Description :Define the security architecture, ensuring that it meets the business requirements and performance goals.
+Management Level :9
+Work Experience :6-8 years
+Work location :Pune
+Job Requirements :
+Key Responsibilities : Running SAST Scans, analyzing tool results, perform SAST, Manual code review, 
+remediation support, review opensource components
+Technical Experience : Reviewing application code against the secure coding baseline and practices
+b Experience in performing static web application security assessments using hands on techniques 
+for identifying SQL injections, XSS, CSRF, authentication/authorization,
+OWASP top 10 issues c Reviewing code developed in JAVA, 
+Net and other leading modern programming languages and technologies d Removing false positives, 
+analyzing static scan Checkmarks, Appscan Source reports on automated scanning e knowledge of SDLC
+Professional Attributes : Expect to have good verbal and written communication and a good team player
+
+
+Degree in Software Engineering or equivalent
+At least 5 years of Development Experience in any programming language;
+Client handling skills for Security Engagements;
+Good written and verbal communication skills in English;
+Ability to travel (up to 30%);
+Pro-active and sense of ownership;
+An advantage if you have a background in application security (penetration testing/security code review / SCA tools, Security Research);
+An advantage if you have Security Certifications (CEH, OSCP, etc.)

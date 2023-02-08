@@ -1,0 +1,9 @@
+RUN ZAP SCAN
+
+FIDDLER TESTING with breakpoints
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
+
+CSP demo
+
+https://github.com/jeremylong/DependencyCheck

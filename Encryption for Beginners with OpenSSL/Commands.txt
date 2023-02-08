@@ -1,0 +1,354 @@
+
+
+https://opensource.com/article/21/4/encryption-decryption-openssl
+
+For PDF of cmds -
+https://cheatography.com/albertx/cheat-sheets/openssl/
+
+1. Open SSL on Ubuntu 16.4
+sudo apt update
+sudo apt-get install openssl
+
+which openssl -> for path
+openssl version -> gives the version
+openssl help -> for all the help
+openssl list -commands -> list all the cmds 
+openssl list -cipher-commands
+
+openssl verify -help
+
+
+2. Open SSL on Windows
+Download tool
+add environment variable
+check on cmd openssl
+
+
+openssl list -help
+openssl list -public-key-algorithm
+
+echo "I am the text for encryption" > test.txt
+
+For encryption using AES 
+openssl enc -aes-256-cbc -in test.txt -out message.txt.enc
+
+For decryption
+openssl enc -aes-256-cbc -d -in message.txt.enc -> prompt for pwd
+openssl enc -aes-256-cbc -d -in message.txt.enc -pass pass:1234
+
+1. Create a sample file
+
+   echo "This is my secret message" > message.txt
+
+2. Encrypt a file
+
+   openssl enc -aes-256-cbc -in message.txt -out message.txt.enc
+
+3. Decrypt a file
+   
+  openssl enc -aes-256-cbc -d -in message.txt.enc -pass pass:example
+
+
+PEM or Privacy Enhanced Mail is a Base64 encoded DER certificate.  PEM certificates are frequently used for web servers as they can easily be translated into readable data using a simple text editor.  Generally when a PEM encoded file is opened in a text editor, it contains very distinct headers and footers.
+
+--------------------------------------------------------------------------------------------------------------------------
+
+Create Asymmetric RSA keys:
+
+1.genertae private key
+
+	openssl genrsa -out myprivate1.pem 256
+ 
+	openssl genrsa -out myprivate1.pem 1024
+
+use any no of bits as industry standards, by default takes 2048 bits
+
+2. Public key is extracted from private key
+
+	openssl rsa -in myprivate1.pem -outform PEM -pubout -out mypublickey1.pem
+
+spit the file in PEM form -pubout -> public key out  -out -> write to some file
+if you don't use -pubout, then private key will be outputted
+
+check with diff cmd
+	diff myprivate1.pem mypublickey2.pem
+
+3. To dispaly the key, all attributes etc. -> Information of the key
+	openssl rsa -in myprivate1.pem -text
+	openssl rsa -in mypublickey1.pem -pubin -text -noout
+
+4. Encrypting Private key with encryption with passphrase
+
+	openssl rsa -in myprivate1.pem -des3 -out myprivatekey1_enc.pem 
+ask for passphrase
+
+In Single Step --
+	openssl genrsa -aes128 -out privatekey2_enc.pem
+
+**By default takes 2048 bits
+
+Generate the public key for the same - 
+	openssl rsa -in privatekey2_enc.pem -outform PEM -pubout -out publickey2.pem
+Prompts for the same passphrase used for encryption
+
+------------------------------------------------------------------------------------------------------------------
+
+Send a encrypted file -
+
+1. Create keys for user1
+	openssl genrsa -aes128 -out privatekey_user1.pem
+	openssl rsa -in privatekey_user1.pem -outform PEM -pubout -out publickey_user1.pem
+
+2. Create keys for user2
+	openssl genrsa -aes128 -out privatekey_user2.pem
+	openssl rsa -in privatekey_user2.pem -outform PEM -pubout -out publickey_user2.pem
+
+3. Create a random Symmetric key
+;	openssl rand -hex -out user1_random_key.bin 64
+
+4. Encrypting the file using the above key
+	openssl enc -aes-256-cbc -in confidential.txt -out confidencial.txt.enc -pass file:user1_random_key.bin
+
+5. Encrypting the symmetric key with User2 public key
+	openssl rsautl -encrypt -inkey publickey_user2.pem -pubin -in user1_random_key.bin -out user1_random_key.bin.enc
+
+6. Decrypt the symmetric key with User2 private key
+	openssl rsautl -decrypt -inkey privatekey_user2.pem -in user1_random_key.bin.enc -out user1_random_key.bin
+
+
+7. Decrypt the document sent with the above extracted symmetric key
+	openssl enc -d -aes-256-cbc -in confidencial.txt.enc -out confidencial.txt -pass file:user1_random_key.bin
+
+****WE encrypt the key only with the User2 public key as when the data is larger, so key length should be very big 
+
+---------------------------------------------------------------------------------------------------------------------------
+
+Hashing
+ in linux - Ubuntu -- Can use git bash on windows for sha256sum
+
+1. Hashing a string in console
+	echo "hello world" | cksum
+
+2. Hashing a file
+	 echo "This is my secret message" > message.txt
+	 cksum message.txt
+	
+	cksum message.txt > message.txt.cksum
+
+3. Hashing multiple files - ***Could be used to check the hashes for configuration files on server-
+   Save these hashes and then later can be checked if these hashes match or not
+
+	md5sum test* > md5hashes.txt
+
+stored hashes in md5hashes.txt
+
+O/p - 5e97c3c5f1356349d1d119c31162e685  test.txt
+      7fa5186a5c17c98fa8fe02ef399a7be6  test1.txt
+
+4. Check the hashes of multiple files and check if they are changed as well
+
+	md5sum -c  md5hashes.txt
+	
+O/P - test.txt: OK
+      test1.txt: OK
+
+**if the files are changed run again 
+	
+	md5sum -c  md5hashes.txt
+
+O/p-	test.txt: FAILED
+	test1.txt: OK
+
+example - md5sum etc/password
+
+5. Checking s/w or files when downloaded from internet -
+	sha256sum httpd2.4.0
+
+Compare the SHA value when stored in a file
+	sha256sum -c httpd2.4.0
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+Signing a document using openssl (rsautl)
+
+File -> Hash -> Encrypted Hash (Signature)
+
+[File & Signature & user's public key] -> send to user
+
+1. 1. Create keys for user1
+	openssl genrsa -aes128 -out privatekey_user1.pem
+	openssl rsa -in privatekey_user1.pem -outform PEM -pubout -out publickey_user1.pem
+
+2. Create keys for user2 - No need in signing process
+	
+
+3. Create a hash for the file to be signed using openssl instead of md5checksum or sh256checksum
+	openssl dgst -sha256 documenttosign.txt > documenttosign.txt.sha256
+
+4. Encrypting the hash with User1 private key
+	openssl rsautl -sign -inkey privatekey_user1.pem -keyform PEM -in documenttosign.txt.sha256 -out documenttosign.txt.sha256.sign
+
+-keyform PEM is optional
+
+Verification Process
+
+[File & Signature] -> [Signature] -> Hash (B)
+
+	|
+	|
+[File] -> Hash (A)
+
+5. Verification at user2 end
+	openssl rsautl -verify -inkey publickey_user1.pem -pubin -keyform PEM -in documenttosign.txt.sha256.sign > hash_from_signature.txt
+
+Can use sha256sum to check the hashes ---  Can use git bash on windows for sha256sum
+	sha256sum -c hash_from_signature.txt
+
+Another command for windows
+	certutil -hashfile documenttosign.txt SHA256
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+Signing a document using openssl (dgst)
+
+1. Create keys for User1
+
+2. Create a digtal signed document
+
+	openssl dgst -sha256 -sign privatekey_user1.pem -out documenttosign.txt.sha256.sign.dgst documenttosign.txt
+
+3. Verification of the document
+	openssl dgst -sha256 -verify publickey_user1.pem -signature documenttosign.txt.sha256.sign.dgst documenttosign.txt
+
+O/p- Verified Ok
+
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Get details from certificate
+
+openssl x509 -inform der -in certificate.cer -pubkey -noout > certificate_publickey.pem
+
+OpenSSL will allow you to look at it if it is installed on your system, using the OpenSSL x509 tool.
+
+openssl x509 -in cerfile.cer -noout -text
+
+The format of the .CER file might require that you specify a different encoding format to be explicitly called out.
+
+openssl x509 -inform pem -in cerfile.cer -noout -text
+or
+
+openssl x509 -inform der -in cerfile.cer -noout -text
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+http://www.steves-internet-guide.com/ssl-certificates-explained/
+Certificate Encodings and Files Extensions
+Certificates can be encoded as:
+
+Binary files (.DER)
+ASCII (base64)files (.PEM)
+Common file extensions in use are:
+
+.DER
+.PEM (Privacy Enhanced Electron Mail)
+.CRT
+.CERT
+Note: There is no real correlation between the file extension and encoding. That means a .crt file can either be a .der encoded file or .pem encoded file.
+
+Question – How do I know if you have a .der or .pem encoded file?
+
+Answer- You can use openssl tools to find the encoding type and convert between encodings. See this tutorial – DER vs. CRT vs. CER vs. PEM Certificates.
+
+You can also open the file and if it is ASCII text then it is a .PEM encoded certificate	
+
+
+https://www.rickyadams.com/wp/index.php/2017/10/10/der-vs-crt-vs-cer-vs-pem-certificates-and-how-to-convert-them/
+
+The important thing to note is that they start and end with the Begin Certificate and End Certificate lines.
+
+Certificates can be stored in their own file or together in a single file called a bundle.
+
+
+
+https://support.cloudways.com/en/articles/5129639-how-to-fix-incomplete-certificate-chain-warning
+
+https://whatsmychaincert.com/?facebook.com
+
+https://www.digicert.com/kb/csr-ssl-installation/apache-openssl.htm#ssl_certificate_install
+
+
+**https://www.thesslstore.com/knowledgebase/ssl-support/combining-multiple-intermediate-certificates/
+
+Due to the limitations on select browsers and mobile devices, Certificate Authorities often do not have their Intermediate Certificates
+deployed for various reasons such as size limitations. Without these Intermediate Certificates being either
+installed on their device(s) or exchanged with the end-user via the SSL Handshake, the connection on such devices can be deemed “Untrusted”.
+
+To combat such issues as highlighted above, web masters are encouraged to install the 
+Intermediate Certificates provided by the Certificate Authority during the SSL Installation process on the servers they wish to have connections handled.
+
+Seems simple right? Well there’s issue that can occur however, which is that Certificate Authorities often 
+require multiple Intermediate Certificates to be installed but the server might only have the ability to support one 
+Intermediate Certificate entry. To combat this, the web master would need to “combine” the Intermediates provided 
+into one single “.CRT” often referred to as the “CABundle”.
+											
+
+https://cca.gov.in/sites/files/pdf/guidelines/CCA-SSL.pdf
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+Check the server certificate -
+
+1.openssl s_client -connect <host>
+ 	openssl s_client -connect centos.org:443
+
+2.openssl verify -verbose <certificate>
+	open ssl verify -verbose test.cert
+
+3. openssl x509 -text <certfile>
+	openssl x509 -text test.cert
+
+C:\Users\arpit.jain\OneDrive - HCL Technologies Ltd\Desktop
+
+-------------------------------------------------------------------------------------------------------------
+
+openssl pkcs12 -in ./GoDaddy.pfx -out ./GoDaddy.pem
+
+If you read the documentation you will see what you are asking for:
+-nocerts
+No certificates at all will be output.
+
+-clcerts
+Only output client certificates (not CA certificates).
+
+-nokeys
+No private keys will be output.
+
+-nodes
+Don't encrypt the private keys at all.
+
+https://medium.com/@superseb/get-your-certificate-chain-right-4b117a9c0fce
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,3 @@
+Validating and protecting structured tokens is a much deeper and complicated space defined by JSON 
+object signing and encryption standard
+These are know as JOSE.

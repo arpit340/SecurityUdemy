@@ -1,0 +1,10 @@
+The Complete SSL and TLS Guide 2022 HTTP to HTTPS
+
+run program -> certmgr.msc 
+is used to check all the certificates on the local system through which Root CA are trusted
+
+Verifying SSL certificates and certificates chain
+https://www.geocerts.com/ssl-checker
+
+Qualys
+https://www.ssllabs.com/ssltest/
